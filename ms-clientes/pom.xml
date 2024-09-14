@@ -154,8 +154,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.12.1</version>
-				<configuration>
-					<reportPlugins>
+			</plugin>
+				<!--configuration-->
+					<!--reportPlugins-->
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -171,9 +172,8 @@
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<version>3.2.0</version>
 						</plugin>
-					</reportPlugins>
-				</configuration>
-			</plugin>
+					<!--reportPlugins-->
+				<!--/configuration-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
