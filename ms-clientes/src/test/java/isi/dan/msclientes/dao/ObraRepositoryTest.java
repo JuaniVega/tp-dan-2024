@@ -1,6 +1,11 @@
 package isi.dan.msclientes.dao;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +23,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import isi.dan.msclientes.model.Obra;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -72,6 +71,7 @@ public class ObraRepositoryTest {
     void testSaveAndFindById() {
         Obra obra = new Obra();
         obra.setDireccion("Test Obra");
+        obra.setPresupuesto(new BigDecimal(12345));
         obraRepository.save(obra);
 
         Optional<Obra> foundObra = obraRepository.findById(obra.getId());
