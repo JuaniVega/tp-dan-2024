@@ -1,9 +1,17 @@
 package isi.dan.msclientes.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import isi.dan.msclientes.model.Cliente;
-import isi.dan.msclientes.servicios.ClienteService;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,98 +22,107 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import isi.dan.msclientes.model.Cliente;
+import isi.dan.msclientes.servicios.ClienteService;
 
 @WebMvcTest(ClienteController.class)
 public class ClienteControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockBean
-    private ClienteService clienteService;
+	@MockBean
+	private ClienteService clienteService;
 
-    private Cliente cliente;
+	private Cliente cliente;
 
-    @BeforeEach
-    void setUp() {
-        cliente = new Cliente();
-        cliente.setId(1);
-        cliente.setNombre("Test Cliente");
-        cliente.setCorreoElectronico("test@cliente.com");
-        cliente.setCuit("12998887776");
-    }
+	@BeforeEach
+	void setUp() {
+		cliente = new Cliente();
+		cliente.setId(1);
+		cliente.setNombre("Test Cliente");
+		cliente.setCorreoElectronico("test@cliente.com");
+		cliente.setCuit("12998887776");
+	}
 
-    @Test
-    void testGetAll() throws Exception {
-        Mockito.when(clienteService.findAll()).thenReturn(Collections.singletonList(cliente));
+	@Test
+	void testGetAll() throws Exception {
+		Mockito.when(clienteService.findAll()).thenReturn(Collections.singletonList(cliente));
 
-        mockMvc.perform(get("/api/clientes"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].nombre").value("Test Cliente"));
-    }
+		mockMvc.perform(get("/api/clientes")).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].nombre").value("Test Cliente"));
+	}
 
-    @Test
-    void testGetById() throws Exception {
-        Mockito.when(clienteService.findById(1)).thenReturn(Optional.of(cliente));
+	@Test
+	void testGetById() throws Exception {
+		Mockito.when(clienteService.findById(1)).thenReturn(Optional.of(cliente));
 
-        mockMvc.perform(get("/api/clientes/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.nombre").value("Test Cliente"))
-                .andExpect(jsonPath("$.cuit").value("12998887776"));
-    }
-    @Test
-    void testGetById_NotFound() throws Exception {
-        Mockito.when(clienteService.findById(2)).thenReturn(Optional.empty());
+		mockMvc.perform(get("/api/clientes/1")).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.nombre").value("Test Cliente"))
+				.andExpect(jsonPath("$.cuit").value("12998887776"));
+	}
 
-        mockMvc.perform(get("/api/clientes/2"))
-                .andExpect(status().isNotFound());
-    }
+	@Test
+	void testGetById_NotFound() throws Exception {
+		Mockito.when(clienteService.findById(2)).thenReturn(Optional.empty());
 
-    @Test
-    void testCreate() throws Exception {
-        Mockito.when(clienteService.save(Mockito.any(Cliente.class))).thenReturn(cliente);
+		mockMvc.perform(get("/api/clientes/2")).andExpect(status().isNotFound());
+	}
 
-        mockMvc.perform(post("/api/clientes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(cliente)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nombre").value("Test Cliente"));
-    }
+	@Test
+	void testCreate() throws Exception {
+		Mockito.when(clienteService.save(Mockito.any(Cliente.class))).thenReturn(cliente);
 
-    @Test
-    void testUpdate() throws Exception {
-        Mockito.when(clienteService.findById(1)).thenReturn(Optional.of(cliente));
-        Mockito.when(clienteService.update(Mockito.any(Cliente.class))).thenReturn(cliente);
+		mockMvc.perform(post("/api/clientes").contentType(MediaType.APPLICATION_JSON).content(asJsonString(cliente)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.nombre").value("Test Cliente"));
+	}
 
-        mockMvc.perform(put("/api/clientes/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(cliente)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nombre").value("Test Cliente"));
-    }
+	@Test
+	void testUpdate() throws Exception {
+		Mockito.when(clienteService.findById(1)).thenReturn(Optional.of(cliente));
+		Mockito.when(clienteService.update(Mockito.any(Cliente.class))).thenReturn(cliente);
 
-    @Test
-    void testDelete() throws Exception {
-        Mockito.when(clienteService.findById(1)).thenReturn(Optional.of(cliente));
-        Mockito.doNothing().when(clienteService).deleteById(1);
+		mockMvc.perform(put("/api/clientes/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(cliente)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.nombre").value("Test Cliente"));
+	}
 
-        mockMvc.perform(delete("/api/clientes/1"))
-                .andExpect(status().isNoContent());
-    }
+	@Test
+	void testUpdate_NotFound() throws Exception {
+		Mockito.when(clienteService.findById(1)).thenReturn(Optional.empty());
 
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+		mockMvc.perform(put("/api/clientes/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(cliente)))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void testDelete() throws Exception {
+		Mockito.when(clienteService.findById(1)).thenReturn(Optional.of(cliente));
+		Mockito.doNothing().when(clienteService).deleteById(1);
+
+		mockMvc.perform(delete("/api/clientes/1")).andExpect(status().isNoContent());
+	}
+
+	private static String asJsonString(final Object obj) {
+		try {
+			return new ObjectMapper().writeValueAsString(obj);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	void testAddEnabledUser() throws Exception {
+		List<Integer> usuariosHabilitadosId = Arrays.asList(1001, 1002);
+
+		// Simular la respuesta del servicio
+		Mockito.when(clienteService.addEnabledUser(1, usuariosHabilitadosId)).thenReturn(cliente);
+
+		mockMvc.perform(put("/api/clientes/usuario-habilitado/1").contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(usuariosHabilitadosId))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.nombre").value("Test Cliente"));
+	}
 }
-
