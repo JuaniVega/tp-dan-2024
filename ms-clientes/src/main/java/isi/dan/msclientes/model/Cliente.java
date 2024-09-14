@@ -1,12 +1,16 @@
 package isi.dan.msclientes.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -17,23 +21,30 @@ import lombok.Data;
 @Table(name = "MS_CLI_CLIENTE")
 @Data
 public class Cliente {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    
-    @NotBlank(message = "El nombre es obligatorio")
-    private String nombre;
 
-    @Column(name="CORREO_ELECTRONICO")
-    @Email(message = "Email debe ser valido")
-    @NotBlank(message = "Email es obligatorio")
-    private String correoElectronico;
-    
-    private String cuit;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    @Column(name="MAXIMO_DESCUBIERTO")
-    @Min(value = 10000, message = "El descubierto maximo debe ser al menos 10000")
-    private BigDecimal maximoDescubierto;
-    
+	@NotBlank(message = "El nombre es obligatorio")
+	private String nombre;
+
+	@Column(name = "CORREO_ELECTRONICO")
+	@Email(message = "Email debe ser valido")
+	@NotBlank(message = "Email es obligatorio")
+	private String correoElectronico;
+
+	private String cuit;
+
+	@Column(name = "MAXIMO_DESCUBIERTO")
+	@Min(value = 1, message = "El descubierto maximo debe ser al menos 1")
+	private BigDecimal maximoDescubierto;
+
+	@Column(name = "maximo_obras_ejecucion")
+	private Integer maxObrasEjecucion;
+
+	@ManyToMany
+	@JoinTable(name = "cliente_usuario_habilitado", joinColumns = @JoinColumn(name = "cliente_id"), inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+	private List<UsuarioHabilitado> usuariosHabilitados;
+
 }
