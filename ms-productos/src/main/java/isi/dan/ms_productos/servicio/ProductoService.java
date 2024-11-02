@@ -71,7 +71,7 @@ public class ProductoService {
 		productoRepository.deleteById(id);
 	}
 
-	public Producto putOrdenProvision(@Valid StockUpdateDTO ordenProvision) throws ProductoNotFoundException {
+	public Producto putOrdenProvision(StockUpdateDTO ordenProvision) throws ProductoNotFoundException {
 		Producto productoToUpdate = productoRepository.findById(ordenProvision.getIdProducto())
 				.orElseThrow(() -> new ProductoNotFoundException(ordenProvision.getIdProducto()));
 
@@ -81,7 +81,7 @@ public class ProductoService {
 		return productoRepository.save(productoToUpdate);
 	}
 
-	public Producto updateDescuento(@Valid DescuentoDto descuentoDto) throws ProductoNotFoundException {
+	public Producto updateDescuento(DescuentoDto descuentoDto) throws ProductoNotFoundException {
 		Producto productToUpdate = productoRepository.findById(descuentoDto.getIdProducto())
 				.orElseThrow(() -> new ProductoNotFoundException(descuentoDto.getIdProducto()));
 

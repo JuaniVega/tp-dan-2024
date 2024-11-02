@@ -1,12 +1,13 @@
 package isi.dan.ms_productos.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +41,7 @@ public class ProductoController {
 
 	@PostMapping
 	@LogExecutionTime
-	public ResponseEntity<Producto> createProducto(@RequestBody @Validated Producto producto)
+	public ResponseEntity<Producto> createProducto(@RequestBody @Valid Producto producto)
 			throws CategoriaNotFoundException {
 		Producto savedProducto = productoService.saveProducto(producto);
 		return ResponseEntity.ok(savedProducto);
@@ -72,8 +73,13 @@ public class ProductoController {
 
 	@GetMapping("/{id}")
 	@LogExecutionTime
-	public ResponseEntity<Producto> getProductoById(@PathVariable Long id) throws ProductoNotFoundException {
-		return ResponseEntity.ok(productoService.getProductoById(id));
+	public ResponseEntity<?> getProductoById(@PathVariable Long id) {
+		try {
+			return ResponseEntity.ok(productoService.getProductoById(id));
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
+		}
 	}
 
 	@DeleteMapping("/{id}")
@@ -85,18 +91,28 @@ public class ProductoController {
 
 	@PutMapping("/enter-orden")
 	@LogExecutionTime
-	public ResponseEntity<Producto> enterOrdenProvision(@RequestBody @Valid StockUpdateDTO ordenProvision)
-			throws ProductoNotFoundException {
-		Producto prod = productoService.putOrdenProvision(ordenProvision);
-		return ResponseEntity.ok(prod);
+	public ResponseEntity<?> enterOrdenProvision(@RequestBody @Valid StockUpdateDTO ordenProvision) {
+		Producto prod;
+		try {
+			prod = productoService.putOrdenProvision(ordenProvision);
+			return ResponseEntity.ok(prod);
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
+		}
 	}
 
 	@PutMapping("/descuento")
 	@LogExecutionTime
-	public ResponseEntity<Producto> updateDescuento(@RequestBody @Valid DescuentoDto descuentoDto)
-			throws ProductoNotFoundException {
-		Producto prod = productoService.updateDescuento(descuentoDto);
-		return ResponseEntity.ok(prod);
+	public ResponseEntity<?> updateDescuento(@RequestBody @Valid DescuentoDto descuentoDto) {
+		Producto prod;
+		try {
+			prod = productoService.updateDescuento(descuentoDto);
+			return ResponseEntity.ok(prod);
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
+		}
 	}
 
 }
