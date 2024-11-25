@@ -18,12 +18,16 @@ public class Pedido {
     private Integer numeroPedido;
     private String usuario;
     private String observaciones;
-
     private Cliente cliente;
-    private BigDecimal total;
+    private Obra obra;
 
+    @Field("estados")
+    private List<HistorialEstado> estados;
+    private EstadoPedido estado;
+    
     @Field("detalle")
     private List<DetallePedido> detalle;
-
+    
+    private BigDecimal total;
 }
 
