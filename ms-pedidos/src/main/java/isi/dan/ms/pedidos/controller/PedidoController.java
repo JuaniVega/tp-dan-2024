@@ -3,8 +3,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import feign.FeignException;
+import isi.dan.ms.pedidos.exception.ObraConDistintoClienteAsignadoException;
+import isi.dan.ms.pedidos.exception.ObraSinClienteAsignadoException;
+import isi.dan.ms.pedidos.exception.PedidoNotFoundException;
 import isi.dan.ms.pedidos.modelo.Pedido;
 import isi.dan.ms.pedidos.servicio.PedidoService;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -16,7 +21,8 @@ public class PedidoController {
     private PedidoService pedidoService;
 
     @PostMapping
-    public ResponseEntity<Pedido> createPedido(@RequestBody Pedido pedido) {
+    public ResponseEntity<Pedido> createPedido(@RequestBody @Valid Pedido pedido) 
+        throws FeignException, ObraSinClienteAsignadoException, ObraConDistintoClienteAsignadoException, PedidoNotFoundException {
         Pedido savedPedido = pedidoService.savePedido(pedido);
         return ResponseEntity.ok(savedPedido);
     }
