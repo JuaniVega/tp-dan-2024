@@ -1,11 +1,13 @@
 package isi.dan.ms_productos.servicio;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,6 @@ import isi.dan.ms_productos.exception.CategoriaNotFoundException;
 import isi.dan.ms_productos.exception.ProductoNotFoundException;
 import isi.dan.ms_productos.modelo.Categoria;
 import isi.dan.ms_productos.modelo.Producto;
-import jakarta.validation.Valid;
 
 @Service
 public class ProductoService {
@@ -27,25 +28,46 @@ public class ProductoService {
 	@Autowired
 	private CategoriaService categoriaService;
 
+	@Autowired
+    private RabbitTemplate rabbitTemplate;
+
 	Logger log = LoggerFactory.getLogger(ProductoService.class);
 
 	@RabbitListener(queues = RabbitMQConfig.STOCK_UPDATE_QUEUE)
 	public void handleStockUpdate(Message msg) throws ProductoNotFoundException, CategoriaNotFoundException {
 		log.info("Recibido {}", msg);
-		String body = msg.getBody().toString();
-		Long productId = Long.parseLong(body.split(";")[0]);
-		Integer quantity = Integer.parseInt(body.split(";")[1]);
+		String body = new String(msg.getBody(), StandardCharsets.UTF_8);
+		String[] parts = body.split(";");
+		
+		if (parts.length != 3) {
+			log.error("Mensaje para RabbitMQ incorrecto: {}", body);
+			return; 
+		}
 
+		Long productId = Long.parseLong(parts[0].trim());
+        Integer quantity = Integer.parseInt(parts[1].trim());
+        String pedidoId = parts[2].trim();
+
+		// Se obtiene el producto en cuestión
 		Producto product = productoRepository.findById(productId)
 				.orElseThrow(() -> new ProductoNotFoundException(productId));
 
-		product.setStockActual(product.getStockActual() - quantity);
-
-		if (product.getStockActual() < product.getStockMinimo()) {
-			// TODO Generar pedido pendiente.
+		// Verificar si hay suficiente stock
+		boolean stockSuficiente = product.getStockActual() >= quantity;
+		if (stockSuficiente) {
+			// Al stock actual se le resta la cantidad pedida 
+			product.setStockActual(product.getStockActual() - quantity);
+			log.info("Stock actualizado para el producto {}: Nuevo stock = {}", productId, product.getStockActual());
+			this.saveProducto(product);
+		} else{
+			log.warn("Stock insuficiente para el producto {}: Solicitado = {}, Disponible = {}",
+				productId, quantity, product.getStockActual());
+			return;
 		}
 
-		this.saveProducto(product);
+		String responseMessage = pedidoId + ";" + productId + ";" + stockSuficiente;
+        rabbitTemplate.convertAndSend(RabbitMQConfig.STOCK_RESPONSE_QUEUE, responseMessage);
+
 	}
 
 	public Producto saveProducto(Producto producto) throws CategoriaNotFoundException {
@@ -55,7 +77,7 @@ public class ProductoService {
 		if (producto.getDescuento() == null) {
 			producto.setDescuento(0f);
 		}
-		producto.setStockActual(0);
+		
 		return productoRepository.save(producto);
 	}
 

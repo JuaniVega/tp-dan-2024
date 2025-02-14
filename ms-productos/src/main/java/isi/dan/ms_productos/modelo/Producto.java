@@ -42,7 +42,8 @@ public class Producto {
 	private Float descuento;
 
 	@ManyToOne
-	@JoinColumn(name = "categoria_id")
+	@JoinColumn(name = "categoria_id", nullable = false)
+	@NotNull(message = "La categoría del producto no puede ser nula")
 	private Categoria categoria;
 
 }

@@ -1,16 +1,14 @@
 package isi.dan.ms.pedidos.modelo;
 
-import java.math.BigDecimal;
-
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class Producto {
 
+    @NotNull(message = "Debe indicarse el id del producto")
     private Long id;
     private String nombre;
     private String descripcion;
-    private BigDecimal precio;
-    
 
 }
