@@ -8,25 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import feign.FeignException;
 
 @ControllerAdvice
-public class RestExceptionHandler{
+public class RestControllerException {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestControllerException.class);
 
-    @ExceptionHandler(PedidoNotFoundException.class)
-    public ResponseEntity<ErrorInfo> handlePedidoNotFound(PedidoNotFoundException ex) {
-        logger.error("ERROR buscando pedido", ex);
-        ErrorInfo error = new ErrorInfo(
-            Instant.now(),
-            "Error al buscar el pedido",
-            ex.getMessage(),
-            HttpStatus.NOT_FOUND.value()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-    
     @ExceptionHandler(FeignException.NotFound.class)
     public ResponseEntity<ErrorInfo> handleFeignNotFound(FeignException.NotFound ex) {
         logger.error("ERROR consultando a otro servicio", ex);
@@ -51,28 +42,22 @@ public class RestExceptionHandler{
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    @ExceptionHandler(ObraSinClienteAsignadoException.class)
-    public ResponseEntity<ErrorInfo> handleClienteNoAsignado(ObraSinClienteAsignadoException ex) {
-        logger.error("ERROR con la obra", ex);
+    @ExceptionHandler(JsonProcessingException.class)
+    public ResponseEntity<ErrorInfo> handleJsonProcessingException(JsonProcessingException ex){
+        logger.error("ERROR en mensaje RabbitMQ", ex);
         ErrorInfo error = new ErrorInfo(
             Instant.now(),
-            "Error de validación",
+            "Error en el mensaje enviado con RabbitMQ",
             ex.getMessage(),
-            HttpStatus.BAD_REQUEST.value()
+            HttpStatus.NOT_FOUND.value()
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(ObraConDistintoClienteAsignadoException.class)
-    public ResponseEntity<ErrorInfo> handleClienteObraMismatch(ObraConDistintoClienteAsignadoException ex) {
-        logger.error("ERROR con la obra", ex);
-        ErrorInfo error = new ErrorInfo(
-            Instant.now(),
-            "Error de validación",
-            ex.getMessage(),
-            HttpStatus.BAD_REQUEST.value()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorInfo> handleOtherExceptions(Exception ex) {
+        logger.error("ERROR en pedido", ex);
+        String detalle = ex.getCause() == null ? "Error en pedido": ex.getCause().getMessage();
+        return new ResponseEntity<ErrorInfo>(new ErrorInfo(Instant.now(),ex.getMessage(),detalle ,HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 }

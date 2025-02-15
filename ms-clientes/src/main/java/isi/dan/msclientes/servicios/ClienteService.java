@@ -17,55 +17,68 @@ import isi.dan.msclientes.model.UsuarioHabilitado;
 @Service
 public class ClienteService {
 
-	@Value("${isi.dan.msclientes.default_max_descubierto:1000}")
-	private BigDecimal defaultMaximoDescubierto;
+    @Value("${isi.dan.msclientes.default_max_descubierto:1000}")
+    private BigDecimal defaultMaximoDescubierto;
 
-	@Autowired
-	private ClienteRepository clienteRepository;
+    @Autowired
+    private ClienteRepository clienteRepository;
 
-	@Autowired
-	private UsuarioHabilitadoService usuarioHabilitadoService;
+    @Autowired
+    private UsuarioHabilitadoService usuarioHabilitadoService;
 
-	public List<Cliente> findAll() {
-		return clienteRepository.findAll();
-	}
+    public List<Cliente> findAll() {
+        return clienteRepository.findAll();
+    }
 
-	public Optional<Cliente> findById(Integer id) {
-		return clienteRepository.findById(id);
-	}
+    public Optional<Cliente> findById(Integer id) {
+        return clienteRepository.findById(id);
+    }
 
-	public Cliente save(Cliente cliente) {
-		if (cliente.getMaximoDescubierto() == null) {
-			cliente.setMaximoDescubierto(defaultMaximoDescubierto);
-		}
-		return clienteRepository.save(cliente);
-	}
+    public Cliente save(Cliente cliente) {
+        if (cliente.getMaximoDescubierto() == null) {
+            cliente.setMaximoDescubierto(defaultMaximoDescubierto);
+        }
+        return clienteRepository.save(cliente);
+    }
 
-	public Cliente update(Cliente cliente) {
-		return clienteRepository.save(cliente);
-	}
+    public Cliente update(Cliente cliente) {
+        return clienteRepository.save(cliente);
+    }
 
-	public void deleteById(Integer id) {
-		clienteRepository.deleteById(id);
-	}
+    public void deleteById(Integer id) {
+        clienteRepository.deleteById(id);
+    }
 
-	public Cliente addEnabledUser(Integer idCliente, List<Integer> usuariosHabilitadosId)
-			throws ClienteNotFoundException {
-		Cliente cliente = findById(idCliente)
-				.orElseThrow(() -> new ClienteNotFoundException("Cliente " + idCliente + " no encontrado"));
+    public Cliente addEnabledUser(Integer idCliente, List<Integer> usuariosHabilitadosId)
+            throws ClienteNotFoundException {
+        Cliente cliente = findById(idCliente)
+                .orElseThrow(() -> new ClienteNotFoundException("Cliente " + idCliente + " no encontrado"));
 
-		// Obtenemos usuarios actuales
-		List<UsuarioHabilitado> usuariosActuales = cliente.getUsuariosHabilitados();
+        // Obtenemos usuarios actuales
+        List<UsuarioHabilitado> usuariosActuales = cliente.getUsuariosHabilitados();
 
-		// Comparamos y filtramos solo usuarios sin asignar
-		List<UsuarioHabilitado> nuevosUsuarios = usuarioHabilitadoService.findAllById(usuariosHabilitadosId).stream()
-				.filter(usuario -> !usuariosActuales.contains(usuario)).collect(Collectors.toList());
+        // Comparamos y filtramos solo usuarios sin asignar
+        List<UsuarioHabilitado> nuevosUsuarios = usuarioHabilitadoService.findAllById(usuariosHabilitadosId).stream()
+                .filter(usuario -> !usuariosActuales.contains(usuario)).collect(Collectors.toList());
 
-		// Agregamos nuevos usuarios a los usuarios actuales
-		usuariosActuales.addAll(nuevosUsuarios);
+        // Agregamos nuevos usuarios a los usuarios actuales
+        usuariosActuales.addAll(nuevosUsuarios);
 
-		// Actualizamos usuarios habilitados y guardamos
-		cliente.setUsuariosHabilitados(usuariosActuales);
-		return clienteRepository.save(cliente);
-	}
+        // Actualizamos usuarios habilitados y guardamos
+        cliente.setUsuariosHabilitados(usuariosActuales);
+        return clienteRepository.save(cliente);
+    }
+
+    public boolean verificarSaldo(Integer idCliente, BigDecimal totalPedido) throws ClienteNotFoundException {
+        Cliente cliente = clienteRepository.findById(idCliente)
+        .orElseThrow(() -> new ClienteNotFoundException("Cliente " + idCliente + " no encontrado"));
+
+        BigDecimal maximoDescubierto = cliente.getMaximoDescubierto();
+        /* maximoDescubierto.compareTo(total) =
+        * 1 si maximo descubierto es mayor que total
+        * 0 si es igual
+        * -1 si es menor
+        */
+        return maximoDescubierto.compareTo(totalPedido) >= 0;
+    }
 }
