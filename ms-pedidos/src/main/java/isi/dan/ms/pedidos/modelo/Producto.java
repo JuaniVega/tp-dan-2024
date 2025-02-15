@@ -1,5 +1,7 @@
 package isi.dan.ms.pedidos.modelo;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -10,5 +12,7 @@ public class Producto {
     private Long id;
     private String nombre;
     private String descripcion;
+    private BigDecimal precio;
+    private Float descuento;
 
 }

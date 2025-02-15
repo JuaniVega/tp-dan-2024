@@ -22,7 +22,6 @@ public class Pedido {
     private Integer numeroPedido;
     private String usuario;
     private String observaciones;
-
     @NotNull(message = "Debe indicarse el cliente para el cual se realiza el pedido")
     @Valid
     private Cliente cliente;
@@ -43,4 +42,3 @@ public class Pedido {
     
     private BigDecimal total;
 }
-
