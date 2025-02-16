@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import isi.dan.ms_productos.aop.LogExecutionTime;
 import isi.dan.ms_productos.dto.DescuentoDto;
 import isi.dan.ms_productos.dto.StockUpdateDTO;
@@ -92,7 +94,7 @@ public class ProductoController {
 
     @PutMapping("/enter-orden")
     @LogExecutionTime
-    public ResponseEntity<?> enterOrdenProvision(@RequestBody @Valid StockUpdateDTO ordenProvision) {
+    public ResponseEntity<?> enterOrdenProvision(@RequestBody @Valid StockUpdateDTO ordenProvision) throws JsonProcessingException {
         Producto prod;
         try {
             prod = productoService.putOrdenProvision(ordenProvision);
@@ -116,11 +118,15 @@ public class ProductoController {
         }
     }
 
-    @GetMapping("/{id}/stock-suficiente")
+    @PostMapping("/stock-suficiente")
     @LogExecutionTime
-    public ResponseEntity<Boolean> verificarStockSuficiente(@PathVariable Long id, @RequestParam Integer cantidad) throws ProductoNotFoundException {
-        boolean stockSuficiente = productoService.verificarStockSuficiente(id, cantidad);
-        return ResponseEntity.ok(stockSuficiente);
+    public ResponseEntity<Boolean> verificarStockSuficiente(@RequestBody Map<Long, Integer> productsToCheck) {
+        try{
+            boolean stockSuficiente = productoService.verificarStockSuficiente(productsToCheck);
+            return ResponseEntity.ok(stockSuficiente);
+        } catch(ProductoNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
     }
 
 }

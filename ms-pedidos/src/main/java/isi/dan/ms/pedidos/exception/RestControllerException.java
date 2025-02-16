@@ -18,6 +18,42 @@ public class RestControllerException {
 
     private static final Logger logger = LoggerFactory.getLogger(RestControllerException.class);
 
+    @ExceptionHandler(PedidoNotFoundException.class)
+    public ResponseEntity<ErrorInfo> handlePedidoNotFound(PedidoNotFoundException ex) {
+        logger.error("ERROR buscando Pedido", ex);
+        ErrorInfo error = new ErrorInfo(
+            Instant.now(),
+            "Pedido no encontrado.",
+            ex.getMessage(),
+            HttpStatus.NOT_FOUND.value()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(PedidosClienteNotFoundException.class)
+    public ResponseEntity<ErrorInfo> handlePedidosClienteNotFound(PedidosClienteNotFoundException ex) {
+        logger.error("ERROR buscando Pedidos", ex);
+        ErrorInfo error = new ErrorInfo(
+            Instant.now(),
+            "No se encontraron pedidos para el cliente indicado.",
+            ex.getMessage(),
+            HttpStatus.NOT_FOUND.value()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(StateChangeException.class)
+    public ResponseEntity<ErrorInfo> handleStateChangeException(PedidoNotFoundException ex) {
+        logger.error("ERROR cambiando el estado del Pedido", ex);
+        ErrorInfo error = new ErrorInfo(
+            Instant.now(),
+            "Cambio de estado inválido para el Pedido.",
+            ex.getMessage(),
+            HttpStatus.NOT_FOUND.value()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     @ExceptionHandler(FeignException.NotFound.class)
     public ResponseEntity<ErrorInfo> handleFeignNotFound(FeignException.NotFound ex) {
         logger.error("ERROR consultando a otro servicio", ex);
