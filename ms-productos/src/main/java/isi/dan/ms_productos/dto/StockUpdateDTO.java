@@ -11,4 +11,5 @@ public class StockUpdateDTO {
 	private Long idProducto;
 	private Integer cantidad;
 	private BigDecimal precio;
+	private boolean reponerStock;
 }

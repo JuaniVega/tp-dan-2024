@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import isi.dan.ms_productos.dao.CategoriaRepository;
 import isi.dan.ms_productos.dao.ProductoRepository;
 import isi.dan.ms_productos.dto.DescuentoDto;
@@ -97,7 +99,7 @@ public class ProductoServiceTest {
 	}
 
 	@Test
-	public void testPutOrdenProvision() throws ProductoNotFoundException {
+	public void testPutOrdenProvision() throws ProductoNotFoundException, JsonProcessingException {
 		StockUpdateDTO ordenProvision = new StockUpdateDTO();
 		ordenProvision.setIdProducto(1L);
 		ordenProvision.setCantidad(10);

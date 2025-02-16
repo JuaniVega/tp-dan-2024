@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import feign.FeignException.FeignClientException;
+import isi.dan.ms.pedidos.exception.PedidoNotFoundException;
+import isi.dan.ms.pedidos.exception.PedidosClienteNotFoundException;
+import isi.dan.ms.pedidos.exception.StateChangeException;
+import isi.dan.ms.pedidos.modelo.EstadoPedido;
 import isi.dan.ms.pedidos.modelo.Pedido;
 import isi.dan.ms.pedidos.servicio.PedidoService;
 
@@ -40,4 +44,23 @@ public class PedidoController {
         pedidoService.deletePedido(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/actualizar-estado")
+    public ResponseEntity<Pedido> updateEstado(@PathVariable String id, @RequestBody EstadoPedido estado) throws PedidoNotFoundException, StateChangeException, JsonProcessingException {
+        Pedido pedido = pedidoService.updateEstado(id, estado);
+        return ResponseEntity.ok(pedido);
+    }
+
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<String> getEstadoPedido(@PathVariable String id) throws PedidoNotFoundException{
+        String estado = pedidoService.obtenerEstadoPedido(id);
+        return ResponseEntity.ok(estado);
+    }
+
+    @GetMapping("/cliente/{idCliente}")
+    public ResponseEntity<List<Pedido>> consultarPedidosPorCliente(@PathVariable Integer idCliente) throws PedidosClienteNotFoundException {
+        List<Pedido> pedidos = pedidoService.obtenerPedidosPorCliente(idCliente);
+        return ResponseEntity.ok(pedidos);
+    }
+
 }
