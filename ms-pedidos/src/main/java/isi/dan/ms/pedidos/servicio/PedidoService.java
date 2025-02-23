@@ -292,4 +292,20 @@ public class PedidoService {
         return pedidos;
     }
 
+    public List<Pedido> buscarPedidos(String clienteId, EstadoPedido estado) {
+        if (clienteId != null && estado != null) {
+            // Buscar por cliente y estado
+            return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+        } else if (clienteId != null) {
+            // Buscar solo por cliente
+            return pedidoRepository.findByClienteId(clienteId);
+        } else if (estado != null) {
+            // Buscar solo por estado
+            return pedidoRepository.findByEstado(estado);
+        } else {
+            // Buscar todos los pedidos
+            return pedidoRepository.findAll();
+        }
+    }
+
 }
