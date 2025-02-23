@@ -232,9 +232,9 @@ public class PedidoService {
          * EN_PREPARACION -> ENTREGADO, CANCELADO
          */
         switch (estadoAnterior) {
-            case EstadoPedido.ACEPTADO:
+            case ACEPTADO:
                 return estadoActual == EstadoPedido.CANCELADO;
-            case EstadoPedido.EN_PREPARACION:
+            case EN_PREPARACION:
                 return estadoActual == EstadoPedido.ENTREGADO || estadoActual == EstadoPedido.CANCELADO;
             default:
                 return false;
