@@ -50,6 +50,12 @@ public class ClienteController {
         log.debug("Recibiendo un echo ----- {}", instancia);
         return Instant.now() + " - " + instancia;
     }
+    
+	@GetMapping("/buscar")
+	public List<Cliente> buscarClientes(@RequestParam(required = false) String nombre,
+			@RequestParam(required = false) String correoElectronico, @RequestParam(required = false) String cuit) {
+		return clienteService.buscarClientes(nombre, correoElectronico, cuit);
+	}
 
     @GetMapping("/{id}")
     @LogExecutionTime
