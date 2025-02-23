@@ -1,5 +1,6 @@
 package isi.dan.ms_productos.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,99 +35,111 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
-    @Autowired
-    private ProductoService productoService;
+	@Autowired
+	private ProductoService productoService;
 
-    Logger log = LoggerFactory.getLogger(ProductoController.class);
+	Logger log = LoggerFactory.getLogger(ProductoController.class);
 
-    @Autowired
-    EchoClientFeign echoSvc;
+	@Autowired
+	EchoClientFeign echoSvc;
 
-    @PostMapping
-    @LogExecutionTime
-    public ResponseEntity<Producto> createProducto(@RequestBody @Valid Producto producto)
-            throws CategoriaNotFoundException {
-        Producto savedProducto = productoService.saveProducto(producto);
-        return ResponseEntity.ok(savedProducto);
-    }
+	@PostMapping
+	@LogExecutionTime
+	public ResponseEntity<Producto> createProducto(@RequestBody @Valid Producto producto)
+			throws CategoriaNotFoundException {
+		Producto savedProducto = productoService.saveProducto(producto);
+		return ResponseEntity.ok(savedProducto);
+	}
 
-    @GetMapping("/test")
-    @LogExecutionTime
-    public String getEcho() {
-        String resultado = echoSvc.echo();
-        log.info("Log en test 1!!!! {}", resultado);
-        return resultado;
-    }
+	@GetMapping("/test")
+	@LogExecutionTime
+	public String getEcho() {
+		String resultado = echoSvc.echo();
+		log.info("Log en test 1!!!! {}", resultado);
+		return resultado;
+	}
 
-    @GetMapping("/test2")
-    @LogExecutionTime
-    public String getEcho2() {
-        RestTemplate restTemplate = new RestTemplate();
-        String gatewayURL = "http://ms-gateway-svc:8080";
-        String resultado = restTemplate.getForObject(gatewayURL + "/clientes/api/clientes/echo", String.class);
-        log.info("Log en test 2 {}", resultado);
-        return resultado;
-    }
+	@GetMapping("/test2")
+	@LogExecutionTime
+	public String getEcho2() {
+		RestTemplate restTemplate = new RestTemplate();
+		String gatewayURL = "http://ms-gateway-svc:8080";
+		String resultado = restTemplate.getForObject(gatewayURL + "/clientes/api/clientes/echo", String.class);
+		log.info("Log en test 2 {}", resultado);
+		return resultado;
+	}
 
-    @GetMapping
-    @LogExecutionTime
-    public List<Producto> getAllProductos() {
-        return productoService.getAllProductos();
-    }
+	@GetMapping
+	@LogExecutionTime
+	public List<Producto> getAllProductos() {
+		return productoService.getAllProductos();
+	}
 
-    @GetMapping("/{id}")
-    @LogExecutionTime
-    public ResponseEntity<?> getProductoById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(productoService.getProductoById(id));
-        } catch (ProductoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
-        }
-    }
+	@GetMapping("/{id}")
+	@LogExecutionTime
+	public ResponseEntity<?> getProductoById(@PathVariable Long id) {
+		try {
+			return ResponseEntity.ok(productoService.getProductoById(id));
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
+		}
+	}
 
-    @DeleteMapping("/{id}")
-    @LogExecutionTime
-    public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
-        productoService.deleteProducto(id);
-        return ResponseEntity.noContent().build();
-    }
+	@GetMapping("/buscar")
+	public List<Producto> buscarProductos(
+	        @RequestParam(required = false) Long id,
+	        @RequestParam(required = false) String nombre,
+	        @RequestParam(required = false) BigDecimal precioMin,
+	        @RequestParam(required = false) BigDecimal precioMax,
+	        @RequestParam(required = false) Integer stockMin,
+	        @RequestParam(required = false) Integer stockMax) {
+	    return productoService.buscarProductos(id, nombre, precioMin, precioMax, stockMin, stockMax);
+	}
 
-    @PutMapping("/enter-orden")
-    @LogExecutionTime
-    public ResponseEntity<?> enterOrdenProvision(@RequestBody @Valid StockUpdateDTO ordenProvision) throws JsonProcessingException {
-        Producto prod;
-        try {
-            prod = productoService.putOrdenProvision(ordenProvision);
-            return ResponseEntity.ok(prod);
-        } catch (ProductoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
-        }
-    }
+	@DeleteMapping("/{id}")
+	@LogExecutionTime
+	public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
+		productoService.deleteProducto(id);
+		return ResponseEntity.noContent().build();
+	}
 
-    @PutMapping("/descuento")
-    @LogExecutionTime
-    public ResponseEntity<?> updateDescuento(@RequestBody @Valid DescuentoDto descuentoDto) {
-        Producto prod;
-        try {
-            prod = productoService.updateDescuento(descuentoDto);
-            return ResponseEntity.ok(prod);
-        } catch (ProductoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
-        }
-    }
+	@PutMapping("/enter-orden")
+	@LogExecutionTime
+	public ResponseEntity<?> enterOrdenProvision(@RequestBody @Valid StockUpdateDTO ordenProvision)
+			throws JsonProcessingException {
+		Producto prod;
+		try {
+			prod = productoService.putOrdenProvision(ordenProvision);
+			return ResponseEntity.ok(prod);
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
+		}
+	}
 
-    @PostMapping("/stock-suficiente")
-    @LogExecutionTime
-    public ResponseEntity<Boolean> verificarStockSuficiente(@RequestBody Map<Long, Integer> productsToCheck) {
-        try{
-            boolean stockSuficiente = productoService.verificarStockSuficiente(productsToCheck);
-            return ResponseEntity.ok(stockSuficiente);
-        } catch(ProductoNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-        }
-    }
+	@PutMapping("/descuento")
+	@LogExecutionTime
+	public ResponseEntity<?> updateDescuento(@RequestBody @Valid DescuentoDto descuentoDto) {
+		Producto prod;
+		try {
+			prod = productoService.updateDescuento(descuentoDto);
+			return ResponseEntity.ok(prod);
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Producto no encontrado", "message", e.getMessage()));
+		}
+	}
+
+	@PostMapping("/stock-suficiente")
+	@LogExecutionTime
+	public ResponseEntity<Boolean> verificarStockSuficiente(@RequestBody Map<Long, Integer> productsToCheck) {
+		try {
+			boolean stockSuficiente = productoService.verificarStockSuficiente(productsToCheck);
+			return ResponseEntity.ok(stockSuficiente);
+		} catch (ProductoNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+		}
+	}
 
 }

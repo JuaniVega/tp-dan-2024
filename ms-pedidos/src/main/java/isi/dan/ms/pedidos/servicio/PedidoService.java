@@ -232,9 +232,9 @@ public class PedidoService {
          * EN_PREPARACION -> ENTREGADO, CANCELADO
          */
         switch (estadoAnterior) {
-            case EstadoPedido.ACEPTADO:
+            case ACEPTADO:
                 return estadoActual == EstadoPedido.CANCELADO;
-            case EstadoPedido.EN_PREPARACION:
+            case EN_PREPARACION:
                 return estadoActual == EstadoPedido.ENTREGADO || estadoActual == EstadoPedido.CANCELADO;
             default:
                 return false;
@@ -290,6 +290,22 @@ public class PedidoService {
             throw new PedidosClienteNotFoundException(idCliente);
         }
         return pedidos;
+    }
+
+    public List<Pedido> buscarPedidos(String clienteId, EstadoPedido estado) {
+        if (clienteId != null && estado != null) {
+            // Buscar por cliente y estado
+            return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+        } else if (clienteId != null) {
+            // Buscar solo por cliente
+            return pedidoRepository.findByClienteId(clienteId);
+        } else if (estado != null) {
+            // Buscar solo por estado
+            return pedidoRepository.findByEstado(estado);
+        } else {
+            // Buscar todos los pedidos
+            return pedidoRepository.findAll();
+        }
     }
 
 }

@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import isi.dan.msclientes.aop.LogExecutionTime;
+import isi.dan.msclientes.exception.ClienteNotFoundException;
+import isi.dan.msclientes.exception.ObraNotFoundException;
+import isi.dan.msclientes.exception.StateErrorException;
 import isi.dan.msclientes.model.Obra;
 import isi.dan.msclientes.servicios.ObraService;
 
@@ -50,6 +53,16 @@ public class ObraController {
 		}
 		obra.setId(id);
 		return ResponseEntity.ok(obraService.update(obra));
+	}
+
+	@PutMapping("/{idObra}/asignar-cliente/{idCliente}")
+	public ResponseEntity<Void> asignarClienteAObra(@PathVariable Integer idObra, @PathVariable Integer idCliente) {
+		try {
+			obraService.asignarCliente(idCliente, idObra);
+			return ResponseEntity.ok().build();
+		} catch (ClienteNotFoundException | ObraNotFoundException | StateErrorException e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@DeleteMapping("/{id}")

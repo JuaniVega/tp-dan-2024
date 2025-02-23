@@ -63,4 +63,13 @@ public class PedidoController {
         return ResponseEntity.ok(pedidos);
     }
 
+	@GetMapping("/buscar")
+	public ResponseEntity<List<Pedido>> buscarPedidos(@RequestParam(required = false) String clienteId,
+			@RequestParam(required = false) String estado) {
+
+		EstadoPedido estadoPedido = EstadoPedido.fromString(estado);
+		List<Pedido> pedidos = pedidoService.buscarPedidos(clienteId, estadoPedido);
+		return ResponseEntity.ok(pedidos);
+	}
+
 }
