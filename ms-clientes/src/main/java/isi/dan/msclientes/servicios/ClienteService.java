@@ -20,6 +20,8 @@ import isi.dan.msclientes.model.UsuarioHabilitado;
 public class ClienteService {
     private static final Logger logger = LoggerFactory.getLogger(ClienteService.class);
 
+	Logger logger = LoggerFactory.getLogger(ObraService.class);
+
 	@Value("${isi.dan.msclientes.default_max_descubierto:1000}")
 	private BigDecimal defaultMaximoDescubierto;
 
@@ -89,6 +91,14 @@ public class ClienteService {
         logger.info("Usuarios habilitados actualizados para cliente {}", idCliente);
         return updatedCliente;
 	}
+
+	public List<UsuarioHabilitado> findUsuariosPorCliente(Integer idCliente) throws ClienteNotFoundException {
+        Cliente cliente = findById(idCliente)
+				.orElseThrow(() -> new ClienteNotFoundException("Cliente " + idCliente + " no encontrado"));
+		logger.info("Usuarios encontrados para el cliente {}; {}", idCliente, cliente.getUsuariosHabilitados());
+        // Devolver la lista de usuarios habilitados del cliente
+        return cliente.getUsuariosHabilitados();
+    }
 
 	public boolean verificarSaldo(Integer idCliente, BigDecimal totalPedido) throws ClienteNotFoundException {
 		logger.debug("Verificando saldo para el cliente {} con total de pedido {}", idCliente, totalPedido);

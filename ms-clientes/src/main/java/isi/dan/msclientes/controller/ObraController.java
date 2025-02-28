@@ -41,6 +41,16 @@ public class ObraController {
 		return obra.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
+	@GetMapping("/cliente/{idCliente}")
+	@LogExecutionTime
+	public ResponseEntity<List<Obra>> getObrasPorCliente(@PathVariable Integer idCliente) {
+		List<Obra> obras = obraService.findByClienteId(idCliente);
+		if (obras.isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok(obras);
+	}
+
 	@PostMapping
 	public Obra create(@RequestBody Obra obra) {
 		return obraService.save(obra);

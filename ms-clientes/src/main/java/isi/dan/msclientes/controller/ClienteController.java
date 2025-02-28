@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import isi.dan.msclientes.aop.LogExecutionTime;
 import isi.dan.msclientes.exception.ClienteNotFoundException;
 import isi.dan.msclientes.model.Cliente;
+import isi.dan.msclientes.model.UsuarioHabilitado;
 import isi.dan.msclientes.servicios.ClienteService;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -97,6 +98,13 @@ public class ClienteController {
     public ResponseEntity<Cliente> addEnabledUser(@PathVariable final Integer id,
             @RequestBody List<Integer> usuariosHabilitadosId) throws ClienteNotFoundException {
         return ResponseEntity.ok(clienteService.addEnabledUser(id, usuariosHabilitadosId));
+    }
+
+    @GetMapping("/{id}/usuarios-habilitados")
+    @LogExecutionTime
+    public ResponseEntity<List<UsuarioHabilitado>> getUsuariosHabilitadosPorCliente(@PathVariable Integer id) throws ClienteNotFoundException {
+        List<UsuarioHabilitado> usuarios = clienteService.findUsuariosPorCliente(id);
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/{id}/saldo-suficiente")
