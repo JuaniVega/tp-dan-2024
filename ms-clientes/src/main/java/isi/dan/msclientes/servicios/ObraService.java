@@ -29,10 +29,12 @@ public class ObraService {
 	private ObraRepository obraRepository;
 
 	public List<Obra> findAll() {
+		logger.info("Recuperando todas las obras.");
 		return obraRepository.findAll();
 	}
 
 	public Optional<Obra> findById(Integer id) {
+		logger.info("Buscando obra con id: {}", id);
 		return obraRepository.findById(id);
 	}
 
@@ -52,24 +54,29 @@ public class ObraService {
 
 			try {
 				// Verifica si el cambio de estados que se quiere hacer es correcto
+				logger.info("Actualizando obra. Id: {}. Estado actual: {}", obra.getId(), obra.getEstado());
 				if (validarEstadoPrevio(obra.getEstado(), estadoPrevio)) {
 
 					if (obra.getCliente() != null) {
 						if (obra.getEstado() == EstadoObraEnum.FINALIZADA) {
+							logger.info("Finalizando obra. Id: {}", obra.getId());
 							finalizarObra(obra);
 
 						} else if (obra.getEstado() == EstadoObraEnum.HABILITADA
 								&& !validarHabilitacionUsuario(obra.getCliente(), obra)) {
 							obra.setEstado(EstadoObraEnum.PENDIENTE);
-
-						} else if (obra.getEstado() == EstadoObraEnum.PENDIENTE
+							logger.info("Cambio de estado a PENDIENTE para la obra. Id: {}", obra.getId());
+							
+							} else if (obra.getEstado() == EstadoObraEnum.PENDIENTE
 								&& validarHabilitacionUsuario(obra.getCliente(), obra)) {
 							obra.setEstado(EstadoObraEnum.HABILITADA);
+							logger.info("Cambio de estado a HABILITADA para la obra. Id: {}", obra.getId());
 						}
 					}
 				}
 			} catch (StateErrorException e) {
 				// Si el cambio de estados no es correcto, deja el valor anterior
+				logger.error("Error al intentar cambiar el estado de la obra. Id: {}. Estado previo: {}", obra.getId(), estadoPrevio, e);
 				obra.setEstado(estadoPrevio);
 			}
 		}
@@ -102,14 +109,16 @@ public class ObraService {
 			Obra obraActualizada = obrasPendientes.get(0);
 			obraActualizada.setEstado(EstadoObraEnum.HABILITADA);
 			obraRepository.save(obraActualizada);
+			logger.info("Habilitando obra pendiente. Id: {}", obra.getId());
+		}else {
+			logger.warn("No se encontraron obras pendientes para habilitar. Obra actual: {}", obra.getId());
 		}
-
-		logger.info("Habilitando obra pendiente. Id: {}", obra.getId());
 	}
 
 	public void deleteById(Integer id) {
 		logger.info("Eliminando obra. Id: {} ", id);
 		obraRepository.deleteById(id);
+		logger.info("Obra eliminada. Id: {}", id);
 	}
 
 	@Transactional

@@ -20,10 +20,12 @@ public class UsuarioHabilitadoService {
 	Logger logger = LoggerFactory.getLogger(ObraService.class);
 
 	public List<UsuarioHabilitado> findAll() {
+		logger.info("Obteniendo todos los usuarios habilitados.");
 		return usuarioHabilitadoRepository.findAll();
 	}
 
 	public Optional<UsuarioHabilitado> findById(Integer id) {
+		logger.info("Buscando usuario habilitado con id: {}", id);
 		return usuarioHabilitadoRepository.findById(id);
 	}
 
@@ -43,6 +45,7 @@ public class UsuarioHabilitadoService {
 	}
 
 	public List<UsuarioHabilitado> findAllById(List<Integer> usuariosHabilitadosId) {
+		logger.info("Buscando usuarios habilitados con ids: {}", usuariosHabilitadosId);
 		return usuarioHabilitadoRepository.findAllById(usuariosHabilitadosId);
 	}
 
