@@ -19,18 +19,25 @@ public class CategoriaService {
 	Logger log = LoggerFactory.getLogger(CategoriaService.class);
 
 	public Categoria saveCategoria(Categoria categoria) {
+		log.info("Guardando categoría con nombre: {}", categoria.getNombre());
 		return repository.save(categoria);
 	}
 
 	public List<Categoria> findAllCategorias() {
+		log.info("Obteniendo todas las categorías.");
 		return repository.findAll();
 	}
 
 	public Categoria findCategoriaById(Long id) throws CategoriaNotFoundException {
-		return repository.findById(id).orElseThrow(() -> new CategoriaNotFoundException(id));
+		log.info("Buscando categoría con id: {}", id);
+		return repository.findById(id).orElseThrow(() -> {
+			log.error("No se encontró categoría con id: {}", id);
+			return new CategoriaNotFoundException(id);
+		});
 	}
 
 	public void deleteCategoriaById(Long id) {
+		log.info("Eliminando categoría con id: {}", id);
 		repository.deleteById(id);
 	}
 }

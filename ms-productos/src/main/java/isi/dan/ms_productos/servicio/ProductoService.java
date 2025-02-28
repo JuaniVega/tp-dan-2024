@@ -61,6 +61,7 @@ public class ProductoService {
 	}
 
 	public Producto saveProducto(Producto producto) throws CategoriaNotFoundException {
+		log.info("Guardando producto: {}", producto.getNombre());
 		Categoria categoria = categoriaService.findCategoriaById(producto.getCategoria().getId());
 		producto.setCategoria(categoria);
 
@@ -72,14 +73,17 @@ public class ProductoService {
 	}
 
 	public List<Producto> getAllProductos() {
+		log.info("Obteniendo todos los productos.");
 		return productoRepository.findAll();
 	}
 
 	public Producto getProductoById(Long id) throws ProductoNotFoundException {
+		log.info("Buscando producto con id: {}", id);
 		return productoRepository.findById(id).orElseThrow(() -> new ProductoNotFoundException(id));
 	}
 
 	public void deleteProducto(Long id) {
+		log.info("Eliminando producto con id: {}", id);
 		productoRepository.deleteById(id);
 	}
 
@@ -105,6 +109,7 @@ public class ProductoService {
 	}
 
 	public Producto updateDescuento(DescuentoDto descuentoDto) throws ProductoNotFoundException {
+		log.info("Actualizando descuento para el producto {}", descuentoDto.getIdProducto());
 		Producto productToUpdate = productoRepository.findById(descuentoDto.getIdProducto())
 				.orElseThrow(() -> new ProductoNotFoundException(descuentoDto.getIdProducto()));
 
@@ -132,6 +137,8 @@ public class ProductoService {
 
 	public List<Producto> buscarProductos(Long id, String nombre, BigDecimal precioMin, BigDecimal precioMax,
 			Integer stockMin, Integer stockMax) {
+		log.info("Buscando productos con los siguientes parámetros: id={}, nombre={}, precioMin={}, precioMax={}, stockMin={}, stockMax={}",
+				id, nombre, precioMin, precioMax, stockMin, stockMax);
 		return productoRepository.buscarProductos(id, nombre, precioMin, precioMax, stockMin, stockMax);
 	}
 
