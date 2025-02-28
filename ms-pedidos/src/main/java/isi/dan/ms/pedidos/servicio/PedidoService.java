@@ -149,8 +149,8 @@ public class PedidoService {
     }
 
     @Transactional
-    public Pedido updateEstado(Integer numPedido, EstadoPedido estadoActual) throws PedidoNotFoundException, StateChangeException, JsonProcessingException {
-        Pedido pedido = pedidoRepository.findByNumeroPedido(numPedido).orElseThrow(() -> new PedidoNotFoundException(numPedido));
+    public Pedido updateEstado(String id, EstadoPedido estadoActual) throws PedidoNotFoundException, StateChangeException, JsonProcessingException {
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNotFoundException(id));
         EstadoPedido estadoAnterior = pedido.getEstado();
         log.info("Validando cambio de estado para el pedido {}: de {} a {}", pedido.getId(), estadoAnterior, estadoActual);
         

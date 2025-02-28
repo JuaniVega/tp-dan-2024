@@ -47,11 +47,19 @@ public class PedidoController {
 		return pedidoService.getAllPedidos();
 	}
 
+	@GetMapping("/{id}")
+    public ResponseEntity<Pedido> getPedidoById(@PathVariable String id) {
+        Pedido pedido = pedidoService.getPedidoById(id);
+        return pedido != null ? ResponseEntity.ok(pedido) : ResponseEntity.notFound().build();
+    }
+
+	/*
 	@GetMapping("/{numeroPedido}")
 	public ResponseEntity<Pedido> getPedidoByNumeroPedido(@PathVariable Integer numeroPedido) {
 		Pedido pedido = pedidoService.getPedidoByNumeroPedido(numeroPedido);
 		return pedido != null ? ResponseEntity.ok(pedido) : ResponseEntity.notFound().build();
 	}
+	*/
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deletePedido(@PathVariable String id) {
@@ -60,7 +68,7 @@ public class PedidoController {
 	}
 
 	@PutMapping("/{id}/actualizar-estado")
-	public ResponseEntity<Pedido> updateEstado(@PathVariable Integer id, @RequestBody String estado)
+	public ResponseEntity<Pedido> updateEstado(@PathVariable String id, @RequestBody String estado)
 			throws PedidoNotFoundException, StateChangeException, JsonProcessingException {
 
 		String estadoString = objectMapper.readTree(estado).get("estado").asText();
