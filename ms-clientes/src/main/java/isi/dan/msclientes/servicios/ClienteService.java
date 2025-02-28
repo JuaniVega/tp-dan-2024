@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import isi.dan.msclientes.model.UsuarioHabilitado;
 
 @Service
 public class ClienteService {
+
+	Logger logger = LoggerFactory.getLogger(ObraService.class);
 
 	@Value("${isi.dan.msclientes.default_max_descubierto:1000}")
 	private BigDecimal defaultMaximoDescubierto;
@@ -68,6 +72,14 @@ public class ClienteService {
 		cliente.setUsuariosHabilitados(usuariosActuales);
 		return clienteRepository.save(cliente);
 	}
+
+	public List<UsuarioHabilitado> findUsuariosPorCliente(Integer idCliente) throws ClienteNotFoundException {
+        Cliente cliente = findById(idCliente)
+				.orElseThrow(() -> new ClienteNotFoundException("Cliente " + idCliente + " no encontrado"));
+		logger.info("Usuarios encontrados para el cliente {}; {}", idCliente, cliente.getUsuariosHabilitados());
+        // Devolver la lista de usuarios habilitados del cliente
+        return cliente.getUsuariosHabilitados();
+    }
 
 	public boolean verificarSaldo(Integer idCliente, BigDecimal totalPedido) throws ClienteNotFoundException {
 		Cliente cliente = clienteRepository.findById(idCliente)

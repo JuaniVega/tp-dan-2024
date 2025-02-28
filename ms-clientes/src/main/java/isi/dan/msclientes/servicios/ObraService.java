@@ -36,6 +36,10 @@ public class ObraService {
 		return obraRepository.findById(id);
 	}
 
+	public List<Obra> findByClienteId(Integer idCliente) {
+		return obraRepository.findByClienteId(idCliente);
+	}
+
 	public Obra save(Obra obra) {
 		obra.setEstado(validarHabilitacionUsuario(obra.getCliente(), obra) ? EstadoObraEnum.HABILITADA
 				: EstadoObraEnum.PENDIENTE);
