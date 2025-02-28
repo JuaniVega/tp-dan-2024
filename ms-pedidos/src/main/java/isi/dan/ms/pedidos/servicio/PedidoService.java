@@ -149,8 +149,8 @@ public class PedidoService {
     }
 
     @Transactional
-    public Pedido updateEstado(String id, EstadoPedido estadoActual) throws PedidoNotFoundException, StateChangeException, JsonProcessingException {
-        Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNotFoundException(id));
+    public Pedido updateEstado(Integer numPedido, EstadoPedido estadoActual) throws PedidoNotFoundException, StateChangeException, JsonProcessingException {
+        Pedido pedido = pedidoRepository.findByNumeroPedido(numPedido).orElseThrow(() -> new PedidoNotFoundException(numPedido));
         EstadoPedido estadoAnterior = pedido.getEstado();
         log.info("Validando cambio de estado para el pedido {}: de {} a {}", pedido.getId(), estadoAnterior, estadoActual);
         
@@ -292,7 +292,7 @@ public class PedidoService {
         return pedidos;
     }
 
-    public List<Pedido> buscarPedidos(String clienteId, EstadoPedido estado) {
+    public List<Pedido> buscarPedidos(Integer clienteId, EstadoPedido estado) {
         if (clienteId != null && estado != null) {
             // Buscar por cliente y estado
             return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
@@ -307,5 +307,10 @@ public class PedidoService {
             return pedidoRepository.findAll();
         }
     }
+
+	public Pedido getPedidoByNumeroPedido(Integer numeroPedido) {
+        log.info("Obteniendo pedido con el numero {}.", numeroPedido);
+        return pedidoRepository.findByNumeroPedido(numeroPedido).orElse(null);
+	}
 
 }
